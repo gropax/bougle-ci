@@ -1,12 +1,55 @@
 resources:
-- name: bougle-fra-glaff-repo
+- name: code
   type: git
   icon: github
   source:
-    uri: git@github.com:gropax/Bougle.French.Glaff.git
+    uri: https://github.com/gropax/Bougle.French.Glaff.git
 
 jobs:
 - name: build
   plan:
-  - get: bougle-fra-glaff-repo
+  - get: code
     trigger: true
+  - task: build
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: mcr.microsoft.com/dotnet/sdk
+          tag: "5.0"
+      inputs:
+      - name: code
+      outputs:
+      - name: code
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          cd code
+          dotnet restore Bougle.French.Glaff.sln
+          dotnet build -c Release Bougle.French.Glaff.sln
+
+- name: test
+  plan:
+  - get: code
+    trigger: true
+    passed: [build]
+  - task: test
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: mcr.microsoft.com/dotnet/sdk
+          tag: "5.0"
+      inputs:
+      - name: code
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          cd code
+          dotnet test -c Release Bougle.French.Glaff.sln
