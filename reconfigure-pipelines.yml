@@ -1,0 +1,21 @@
+resources:
+- name: bougle-ci
+  type: git
+  icon: github
+  source:
+    uri: git@github.com:gropax/bougle-ci.git
+
+jobs:
+- name: configure-self
+  plan:
+  - get: bougle-ci
+    trigger: true
+  - set_pipeline: reconfigure-pipelines
+    file: reconfigure-pipelines.yml
+- name: configure-pipelines
+  plan:
+    - get: bougle-ci
+      trigger: true
+      passed: [configure-self]
+    - set_pipeline: bougle-fra-glaff
+      file: bougle-fra-glaff.yml

@@ -1,0 +1,12 @@
+resources:
+- name: bougle-fra-glaff-repo
+  type: git
+  icon: github
+  source:
+    uri: git@github.com:gropax/Bougle.French.Glaff.git
+
+jobs:
+- name: build
+  plan:
+  - get: bougle-fra-glaff-repo
+    trigger: true
