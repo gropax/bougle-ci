@@ -5,12 +5,18 @@ resources:
   source:
     uri: https://github.com/gropax/Bougle.French.Glaff.git
 
+- name: server-image
+  type: registry-image
+  icon: docker
+  source:
+    repository: localhost:8082/bougle/fra-glaff
+
 jobs:
-- name: build
+- name: build-and-test
   plan:
   - get: code
     trigger: true
-  - task: build
+  - task: build-and-test
     config:
       platform: linux
       image_resource:
@@ -30,26 +36,30 @@ jobs:
           cd code
           dotnet restore Bougle.French.Glaff.sln
           dotnet build -c Release Bougle.French.Glaff.sln
+          dotnet test -c Release Bougle.French.Glaff.sln
 
-- name: test
+- name: build-server-image
   plan:
   - get: code
-    trigger: true
-    passed: [build]
-  - task: test
+    passed: [build-and-test]
+  - task: build-server-image
+    privileged: true
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
-          repository: mcr.microsoft.com/dotnet/sdk
-          tag: "5.0"
+          repository: concourse/oci-build-task
       inputs:
       - name: code
+      outputs:
+      - name: image
+      params:
+        CONTEXT: code
+        DOCKERFILE: code/Bougle.French.Glaff.Web/Dockerfile
       run:
-        path: sh
-        args:
-        - -exc
-        - |
-          cd code
-          dotnet test -c Release Bougle.French.Glaff.sln
+        path: build
+  - put: server-image
+    params:
+      image: image/image.tar
+      version: "1.0.0"
