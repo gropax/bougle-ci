@@ -6,10 +6,13 @@ resources:
     uri: https://github.com/gropax/Bougle.French.Glaff.git
 
 - name: server-image
-  type: registry-image
+  type: docker-image
   icon: docker
   source:
-    repository: localhost:8082/bougle/fra-glaff
+    repository: nexus.boug.re:18444/bougle/bougle-fra-glaff
+    username: ((docker-registry.username))
+    password: ((docker-registry.password))
+    tag: dev
 
 jobs:
 - name: build-and-test
@@ -42,24 +45,9 @@ jobs:
   plan:
   - get: code
     passed: [build-and-test]
-  - task: build-server-image
-    privileged: true
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: concourse/oci-build-task
-      inputs:
-      - name: code
-      outputs:
-      - name: image
-      params:
-        CONTEXT: code
-        DOCKERFILE: code/Bougle.French.Glaff.Web/Dockerfile
-      run:
-        path: build
   - put: server-image
     params:
-      image: image/image.tar
-      version: "1.0.0"
+      build: code
+      dockerfile: code/Bougle.French.Glaff.Web/Dockerfile
+      labels:
+        version: 1.0.1
