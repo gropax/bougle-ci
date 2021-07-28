@@ -1,18 +1,49 @@
+resource_types:
+- name: nuget-package
+  type: docker-image
+  source:
+    repository: nexus.boug.re:18444/concourse-nuget-resource
+    tag: "1.0.0"
+    username: ((nexus.username))
+    password: ((nexus.password))
+
+
 resources:
 - name: code
   type: git
   icon: github
   source:
-    uri: https://github.com/gropax/Bougle.French.Glaff.git
+    uri: ((git-repo.address))
 
 - name: server-image
   type: docker-image
   icon: docker
   source:
     repository: nexus.boug.re:18444/bougle/bougle-fra-glaff
-    username: ((docker-registry.username))
-    password: ((docker-registry.password))
+    username: ((nexus.username))
+    password: ((nexus.password))
     tag: dev
+
+- name: client-package
+  type: nuget-package
+  icon: package-variant-closed
+  source:
+    package_id: Bougle.French.Glaff.Client
+    uri: ((baget.uri))
+    api_key: ((baget.apikey))
+    #username: ((nexus.username))
+    #password: ((nexus.password))
+
+
+#- name: client-version
+#  type: semver
+#  icon: tag
+#  source:
+#    driver: git
+#    uri: ((git-repo.address))
+#    branch: master
+#    file: Bougle.French.Glaff.Client/version
+
 
 jobs:
 - name: build-and-test
@@ -41,6 +72,35 @@ jobs:
           dotnet build -c Release Bougle.French.Glaff.sln
           dotnet test -c Release Bougle.French.Glaff.sln
 
+
+- name: publish-client
+  plan:
+  - get: code
+    passed: [build-and-test]
+  - task: build-package
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: mcr.microsoft.com/dotnet/sdk
+          tag: "5.0"
+      inputs:
+      - name: code
+      outputs:
+      - name: nuget
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          dotnet build ./code/Bougle.French.Glaff.Client/Bougle.French.Glaff.Client.csproj
+          dotnet pack ./code/Bougle.French.Glaff.Client/Bougle.French.Glaff.Client.csproj -o ./nuget
+  - put: client-package
+    params: 
+      package_dir: nuget
+
+
 - name: build-server-image
   plan:
   - get: code
@@ -50,4 +110,4 @@ jobs:
       build: code
       dockerfile: code/Bougle.French.Glaff.Web/Dockerfile
       labels:
-        version: 1.0.1
+        version: 1.0.0
