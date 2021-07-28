@@ -29,10 +29,10 @@ resources:
   icon: package-variant-closed
   source:
     package_id: Bougle.French.Glaff.Client
-    uri: ((baget.uri))
-    api_key: ((baget.apikey))
-    #username: ((nexus.username))
-    #password: ((nexus.password))
+    uri: ((nexus-nuget.uri))
+    api_key: ((nexus-nuget.apikey))
+    username: ((nexus.username))
+    password: ((nexus.password))
 
 
 #- name: client-version
