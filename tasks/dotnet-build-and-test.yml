@@ -14,6 +14,6 @@ run:
   - -exc
   - |
     cd code
-    dotnet restore ((solution-file))
-    dotnet build -c Release ((solution-file))
-    dotnet test -c Release ((solution-file))
+    dotnet restore ((solution_file))
+    dotnet build -c Release ((solution_file))
+    dotnet test -c Release ((solution_file))
