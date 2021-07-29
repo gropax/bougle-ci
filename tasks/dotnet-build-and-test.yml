@@ -1,5 +1,5 @@
 platform: linux
-mage_resource:
+image_resource:
   type: registry-image
   source:
     repository: mcr.microsoft.com/dotnet/sdk

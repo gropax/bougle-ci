@@ -5,6 +5,7 @@ resources:
   source:
     uri: https://github.com/gropax/bougle-ci.git
 
+
 jobs:
 - name: configure-self
   plan:
