@@ -5,15 +5,15 @@ image_resource:
     repository: mcr.microsoft.com/dotnet/sdk
     tag: "5.0"
 inputs:
-- name: code
+- name: "((source))"
 outputs:
-- name: code
+- name: "((source))"
 run:
   path: sh
   args:
   - -exc
   - |
     cd code
-    dotnet restore ((solution_file))
-    dotnet build -c Release ((solution_file))
-    dotnet test -c Release ((solution_file))
+    dotnet restore ((solution))
+    dotnet build -c Release ((solution))
+    dotnet test -c Release ((solution))

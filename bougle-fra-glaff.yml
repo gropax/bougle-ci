@@ -60,7 +60,8 @@ jobs:
   - task: build-and-test
     file: bougle-ci/tasks/dotnet-build-and-test.yml
     vars:
-      solution_file: "Bougle.French.Glaff.sln"
+      source: "code"
+      solution: "Bougle.French.Glaff.sln"
 
 
 - name: publish-client
