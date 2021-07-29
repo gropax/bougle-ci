@@ -1,0 +1,19 @@
+platform: linux
+mage_resource:
+  type: registry-image
+  source:
+    repository: mcr.microsoft.com/dotnet/sdk
+    tag: "5.0"
+inputs:
+- name: code
+outputs:
+- name: code
+run:
+  path: sh
+  args:
+  - -exc
+  - |
+    cd code
+    dotnet restore ((solution-file))
+    dotnet build -c Release ((solution-file))
+    dotnet test -c Release ((solution-file))
