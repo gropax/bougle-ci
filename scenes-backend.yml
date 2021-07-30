@@ -44,18 +44,29 @@ resources:
 
 
 jobs:
-- name: build-and-test
+- name: build
   plan:
   - get: code
     trigger: true
   - get: bougle-ci
-  - task: build-and-test
-    file: bougle-ci/tasks/dotnet-build-and-test.yml
+  - task: build
+    file: bougle-ci/tasks/dotnet-build.yml
     vars:
       source: "code"
       solution: "Scenes.Backend.sln"
       framework: "3.1"
 
+- name: unit-tests
+  plan:
+  - get: code
+    trigger: true
+  - get: bougle-ci
+  - task: unit-tests
+    file: bougle-ci/tasks/dotnet-test.yml
+    vars:
+      source: "code"
+      solution: "Scenes.Backend.sln"
+      framework: "3.1"
 
 - name: publish-client
   plan:

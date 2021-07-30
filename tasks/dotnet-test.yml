@@ -1,0 +1,17 @@
+platform: linux
+image_resource:
+  type: registry-image
+  source:
+    repository: mcr.microsoft.com/dotnet/sdk
+    tag: "((framework))"
+inputs:
+- name: "((source))"
+outputs:
+- name: "((source))"
+run:
+  path: sh
+  args:
+  - -exc
+  - |
+    cd code
+    dotnet test -c Release ((solution))
