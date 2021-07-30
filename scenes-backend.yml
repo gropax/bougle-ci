@@ -20,6 +20,8 @@ resources:
   icon: github
   source:
     uri: ((git-repo.address))
+    username: ((git-repo.username))
+    password: ((git-repo.password))
 
 - name: server-image
   type: docker-image
@@ -52,6 +54,7 @@ jobs:
     vars:
       source: "code"
       solution: "Scenes.Backend.sln"
+      framework: "3.1"
 
 
 - name: publish-client

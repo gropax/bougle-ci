@@ -3,7 +3,7 @@ image_resource:
   type: registry-image
   source:
     repository: mcr.microsoft.com/dotnet/sdk
-    tag: "5.0"
+    tag: "((framework))"
 inputs:
 - name: "((source))"
 outputs:

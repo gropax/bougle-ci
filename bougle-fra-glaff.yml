@@ -62,6 +62,7 @@ jobs:
     vars:
       source: "code"
       solution: "Bougle.French.Glaff.sln"
+      framework: "5.0"
 
 
 - name: publish-client
