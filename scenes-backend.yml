@@ -2,7 +2,7 @@ resource_types:
 - name: nuget-package
   type: docker-image
   source:
-    repository: ((nexus-docker.uri)/concourse-nuget-resource
+    repository: ((nexus-docker.uri))/concourse-nuget-resource
     tag: "1.0.0"
     username: ((nexus.username))
     password: ((nexus.password))
@@ -27,7 +27,7 @@ resources:
   type: docker-image
   icon: docker
   source:
-    repository: ((nexus-docker.uri))/bougle/scenes-backend
+    repository: ((nexus-docker.uri))/pragma/scenes-backend
     username: ((nexus.username))
     password: ((nexus.password))
     tag: dev
@@ -44,7 +44,7 @@ resources:
 
 
 jobs:
-- name: build
+- name: build-and-test
   plan:
   - get: code
     trigger: true
@@ -55,12 +55,6 @@ jobs:
       source: "code"
       solution: "Scenes.Backend.sln"
       framework: "3.1"
-
-- name: unit-tests
-  plan:
-  - get: code
-    trigger: true
-  - get: bougle-ci
   - task: unit-tests
     file: bougle-ci/tasks/dotnet-test.yml
     vars:
@@ -89,8 +83,8 @@ jobs:
         args:
         - -exc
         - |
-          dotnet build ./code/Scenes.Backend.Client/Scenes.Backend.Client.csproj
-          dotnet pack ./code/Scenes.Backend.Client/Scenes.Backend.Client.csproj -o ./nuget
+          dotnet build ./code/src/Scenes.Backend.Client/Scenes.Backend.Client.csproj
+          dotnet pack ./code/src/Scenes.Backend.Client/Scenes.Backend.Client.csproj -o ./nuget
   - put: client-package
     params: 
       package_dir: nuget
@@ -103,6 +97,6 @@ jobs:
   - put: server-image
     params:
       build: code
-      dockerfile: code/Scenes.Backend.Web/Dockerfile
+      dockerfile: code/src/Scenes.Backend.Web/Dockerfile
       labels:
         version: 1.0.0
