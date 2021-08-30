@@ -15,13 +15,20 @@ resources:
   source:
     uri: https://github.com/gropax/bougle-ci.git
 
+- name: docker-compose
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/gropax/bougle-ci.git
+    paths:
+    - docker-compose/scenes-backend.yml
+
 - name: code
   type: git
   icon: github
   source:
     uri: ((git-repo.address))
-    username: ((git-repo.username))
-    password: ((git-repo.password))
+    private_key: ((git-repo.private_key))
 
 - name: server-image
   type: docker-image
@@ -100,3 +107,49 @@ jobs:
       dockerfile: code/src/Scenes.Backend.Web/Dockerfile
       labels:
         version: 1.0.0
+
+
+- name: deploy-dev
+  plan:
+  - get: server-image
+    trigger: true
+    passed: [build-server-image]
+  - get: docker-compose
+  - task: deploy-server
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: ((nexus-docker.uri))/concourse-docker-compose-ssh
+          tag: "1.0.0"
+          username: ((nexus.username))
+          password: ((nexus.password))
+      inputs:
+      - name: docker-compose
+      - name: server-image
+      params:
+        DOCKER_HOST: ((server.ssh_connexion))
+        SSH_KEY: ((server.ssh_key))
+        SSH_HOST: ((server.ssh_host))
+        SSH_PORT: ((server.ssh_port))
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          mkdir ~/.ssh
+
+          set +x  # avoid logging the private key
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519  # create SSH key file
+          set -x
+
+          chmod 400 ~/.ssh/id_ed25519        # restrict file access, otherwise key is refused by agent
+
+          eval "$(ssh-agent -s)"             # start the ssh-agent service
+          ssh-add ~/.ssh/id_ed25519          # add SSH key to agent
+          ssh-keyscan -t ed25519 -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts  # add host to known_hosts to avoid user prompt
+
+          docker-compose -f ./docker-compose/docker-compose/scenes-backend.yml down
+          docker-compose -f ./docker-compose/docker-compose/scenes-backend.yml up -d
+          
