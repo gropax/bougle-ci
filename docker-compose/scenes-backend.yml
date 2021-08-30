@@ -15,19 +15,22 @@ services:
 
   neo4j:
     image: neo4j:4.3.2-enterprise
-    container_name: neo4j
+    container_name: scenes-backend-db
     restart: unless-stopped
     ports:
       - "17474:7474"
       - "17687:7687"
     volumes:
-      - ./data:/data
+      - scenes-backend-db-data:/data
     environment:
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - VIRTUAL_HOST=neo4j.boug.re
       - VIRTUAL_PORT=7474
       - LETSENCRYPT_HOST=neo4j.boug.re
       - LETSENCRYPT_EMAIL=maxime.laudrin@protonmail.com
+
+volumes:
+  scenes-backend-db-data:
 
 networks:
   default:
