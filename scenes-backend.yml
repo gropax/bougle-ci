@@ -133,6 +133,9 @@ jobs:
         SSH_KEY: ((server.ssh_key))
         SSH_HOST: ((server.ssh_host))
         SSH_PORT: ((server.ssh_port))
+        DOCKER_REGISTRY: ((nexus-docker.uri))
+        NEXUS_USR: ((nexus.username))
+        NEXUS_PWD: ((nexus.password))
       run:
         path: sh
         args:
@@ -140,8 +143,9 @@ jobs:
         - |
           mkdir ~/.ssh
 
-          set +x  # avoid logging the private key
+          set +x  # avoid logging the passwords
           echo "$SSH_KEY" > ~/.ssh/id_ed25519  # create SSH key file
+          echo "$NEXUS_PWD" > ~/nexus_pwd      # put Docker registry pwd in file
           set -x
 
           chmod 400 ~/.ssh/id_ed25519        # restrict file access, otherwise key is refused by agent
@@ -150,6 +154,9 @@ jobs:
           ssh-add ~/.ssh/id_ed25519          # add SSH key to agent
           ssh-keyscan -t ed25519 -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts  # add host to known_hosts to avoid user prompt
 
+          cat ~/nexus_pwd | docker login $DOCKER_REGISTRY -u $NEXUS_USR --password-stdin  # login into Docker registry
+
           docker-compose -f ./docker-compose/docker-compose/scenes-backend.yml down
+          docker pull "$DOCKER_REGISTRY/pragma/scenes-backend:dev"
           docker-compose -f ./docker-compose/docker-compose/scenes-backend.yml up -d
           
