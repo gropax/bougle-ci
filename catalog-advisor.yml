@@ -21,7 +21,7 @@ resources:
   source:
     uri: https://github.com/gropax/bougle-ci.git
     paths:
-    - docker-compose/scenes-backend.yml
+    - docker-compose/catalog-advisor.yml
 
 - name: code
   type: git
@@ -34,10 +34,10 @@ resources:
   type: docker-image
   icon: docker
   source:
-    repository: ((nexus-docker.uri))/pragma/scenes-backend
+    repository: ((nexus-docker.uri))/pragma/catalog-advisor
     username: ((nexus.username))
     password: ((nexus.password))
-    tag: dev
+    tag: latest
 
 - name: client-package
   type: nuget-package
@@ -105,11 +105,11 @@ jobs:
     params:
       build: code
       dockerfile: code/src/Scenes.Backend.Web/Dockerfile
-      labels:
-        version: 1.0.0
+      tag_file: code/src/Scenes.Backend.Web/version
+      tag_as_latest: true
 
 
-- name: deploy-dev
+- name: deploy-latest
   plan:
   - get: server-image
     trigger: true
@@ -156,7 +156,7 @@ jobs:
 
           cat ~/nexus_pwd | docker login $DOCKER_REGISTRY -u $NEXUS_USR --password-stdin  # login into Docker registry
 
-          docker-compose -f ./docker-compose/docker-compose/scenes-backend.yml down
-          docker pull "$DOCKER_REGISTRY/pragma/scenes-backend:dev"
-          docker-compose -f ./docker-compose/docker-compose/scenes-backend.yml up -d
+          docker-compose -f ./docker-compose/docker-compose/catalog-advisor.yml down
+          docker pull "$DOCKER_REGISTRY/pragma/catalog-advisor:latest"
+          docker-compose -f ./docker-compose/docker-compose/catalog-advisor.yml up -d
           
