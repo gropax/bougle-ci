@@ -129,7 +129,7 @@ jobs:
       - name: docker-compose
       - name: server-image
       params:
-        DOCKER_HOST: ((server.ssh_connexion))
+        DOCKER_HOST: ((server.ssh_connection))
         SSH_KEY: ((server.ssh_key))
         SSH_HOST: ((server.ssh_host))
         SSH_PORT: ((server.ssh_port))
