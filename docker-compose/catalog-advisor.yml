@@ -8,6 +8,10 @@ services:
     ports:
       - "8088:80"
     environment:
+      - Neo4j__Address=bolt://catalog-advisor-db:7687/db/data
+      - Neo4j__User=neo4j
+      - Neo4j__Pwd=12345
+
       - VIRTUAL_HOST=scenes.boug.re
       - VIRTUAL_PORT=80
       - LETSENCRYPT_HOST=scenes.boug.re
