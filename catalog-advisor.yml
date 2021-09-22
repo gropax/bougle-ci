@@ -112,7 +112,6 @@ jobs:
 - name: deploy-latest
   plan:
   - get: server-image
-    trigger: true
     passed: [build-server-image]
   - get: docker-compose
   - task: deploy-server
