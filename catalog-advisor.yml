@@ -43,7 +43,7 @@ resources:
   type: nuget-package
   icon: package-variant-closed
   source:
-    package_id: Scenes.Backend.Client
+    package_id: Pragma.CatalogAdvisor.Client
     uri: ((nexus-nuget.uri))
     api_key: ((nexus-nuget.apikey))
     username: ((nexus.username))
@@ -60,13 +60,13 @@ jobs:
     file: bougle-ci/tasks/dotnet-build.yml
     vars:
       source: "code"
-      solution: "Scenes.Backend.sln"
+      solution: "Pragma.CatalogAdvisor.sln"
       framework: "3.1"
   - task: unit-tests
     file: bougle-ci/tasks/dotnet-test.yml
     vars:
       source: "code"
-      solution: "Scenes.Backend.sln"
+      solution: "Pragma.CatalogAdvisor.sln"
       framework: "3.1"
 
 - name: publish-client
@@ -90,8 +90,8 @@ jobs:
         args:
         - -exc
         - |
-          dotnet build ./code/src/Scenes.Backend.Client/Scenes.Backend.Client.csproj
-          dotnet pack ./code/src/Scenes.Backend.Client/Scenes.Backend.Client.csproj -o ./nuget
+          dotnet build ./code/src/Pragma.CatalogAdvisor.Client/Pragma.CatalogAdvisor.Client.csproj
+          dotnet pack ./code/src/Pragma.CatalogAdvisor.Client/Pragma.CatalogAdvisor.Client.csproj -o ./nuget
   - put: client-package
     params: 
       package_dir: nuget
@@ -104,8 +104,8 @@ jobs:
   - put: server-image
     params:
       build: code
-      dockerfile: code/src/Scenes.Backend.Web/Dockerfile
-      tag_file: code/src/Scenes.Backend.Web/version
+      dockerfile: code/src/Pragma.CatalogAdvisor.Web/Dockerfile
+      tag_file: code/src/Pragma.CatalogAdvisor.Web/version
       tag_as_latest: true
 
 
