@@ -16,7 +16,7 @@ services:
 
   catalog-advisor-db:
     image: elasticsearch:7.14.0
-    container_name: elasticsearch
+    container_name: catalog-advisor-db
     restart: unless-stopped
     ports:
       - "9201:9200"
