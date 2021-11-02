@@ -62,8 +62,10 @@ jobs:
       source: "code"
       solution: "Pragma.CatalogAdvisor.sln"
       framework: "3.1"
-  - task: unit-tests
+  - task: tests
     file: bougle-ci/tasks/dotnet-test.yml
+    params:
+      Elasticsearch__Address: ((elasticsearch.uri))
     vars:
       source: "code"
       solution: "Pragma.CatalogAdvisor.sln"
