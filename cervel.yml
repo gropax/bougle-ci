@@ -68,7 +68,7 @@ jobs:
   - put: server-image
     params:
       build: code
-      dockerfile: code/Cervel.Web/Dockerfile
+      dockerfile: code/src/Cervel.Web/Dockerfile
       labels:
         version: 1.0.0
        
