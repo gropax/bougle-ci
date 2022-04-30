@@ -1,0 +1,65 @@
+resource_types:
+- name: nuget-package
+  type: docker-image
+  source:
+    repository: ((nexus-docker.uri))/concourse-nuget-resource
+    tag: "1.0.0"
+    username: ((nexus.username))
+    password: ((nexus.password))
+
+
+resources:
+- name: bougle-ci
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/gropax/bougle-ci.git
+
+- name: code
+  type: git
+  icon: github
+  source:
+    uri: ((git-repo.address))
+
+- name: server-image
+  type: docker-image
+  icon: docker
+  source:
+    repository: ((nexus-docker.uri))/bougle/cervel
+    username: ((nexus.username))
+    password: ((nexus.password))
+    tag: dev
+
+#- name: client-version
+#  type: semver
+#  icon: tag
+#  source:
+#    driver: git
+#    uri: ((git-repo.address))
+#    branch: master
+#    file: Bougle.French.Glaff.Client/version
+
+
+jobs:
+- name: build-and-test
+  plan:
+  - get: code
+    trigger: true
+  - get: bougle-ci
+  - task: build-and-test
+    file: bougle-ci/tasks/dotnet-build-and-test.yml
+    vars:
+      source: "code"
+      solution: "Cervel.sln"
+      framework: "5.0"
+
+- name: build-server-image
+  plan:
+  - get: code
+    passed: [build-and-test]
+  - put: server-image
+    params:
+      build: code
+      dockerfile: code/Cervel.Web/Dockerfile
+      labels:
+        version: 1.0.0

@@ -20,5 +20,7 @@ jobs:
       passed: [configure-self]
     - set_pipeline: bougle-fra-glaff
       file: bougle-ci/bougle-fra-glaff.yml
+    - set_pipeline: cervel
+      file: bougle-ci/cervel.yml
     - set_pipeline: catalog-advisor
       file: bougle-ci/catalog-advisor.yml
