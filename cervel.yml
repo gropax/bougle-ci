@@ -15,6 +15,14 @@ resources:
   source:
     uri: https://github.com/gropax/bougle-ci.git
 
+- name: docker-compose
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/gropax/bougle-ci.git
+    paths:
+    - docker-compose/cervel.yml
+    
 - name: code
   type: git
   icon: github
@@ -63,3 +71,55 @@ jobs:
       dockerfile: code/Cervel.Web/Dockerfile
       labels:
         version: 1.0.0
+       
+
+- name: deploy-latest
+  plan:
+  - get: server-image
+    passed: [build-server-image]
+  - get: docker-compose
+  - task: deploy-server
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: ((nexus-docker.uri))/concourse-docker-compose-ssh
+          tag: "1.0.0"
+          username: ((nexus.username))
+          password: ((nexus.password))
+      inputs:
+      - name: docker-compose
+      - name: server-image
+      params:
+        DOCKER_HOST: ((server.ssh_connection))
+        SSH_KEY: ((server.ssh_key))
+        SSH_HOST: ((server.ssh_host))
+        SSH_PORT: ((server.ssh_port))
+        DOCKER_REGISTRY: ((nexus-docker.uri))
+        NEXUS_USR: ((nexus.username))
+        NEXUS_PWD: ((nexus.password))
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          mkdir ~/.ssh
+
+          set +x  # avoid logging the passwords
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519  # create SSH key file
+          echo "$NEXUS_PWD" > ~/nexus_pwd      # put Docker registry pwd in file
+          set -x
+
+          chmod 400 ~/.ssh/id_ed25519        # restrict file access, otherwise key is refused by agent
+
+          eval "$(ssh-agent -s)"             # start the ssh-agent service
+          ssh-add ~/.ssh/id_ed25519          # add SSH key to agent
+          ssh-keyscan -t ed25519 -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts  # add host to known_hosts to avoid user prompt
+
+          cat ~/nexus_pwd | docker login $DOCKER_REGISTRY -u $NEXUS_USR --password-stdin  # login into Docker registry
+
+          docker-compose -f ./docker-compose/docker-compose/cervel.yml down
+          docker pull "$DOCKER_REGISTRY/bougle/cervel:latest"
+          docker-compose -f ./docker-compose/docker-compose/cervel.yml up -d
+          
