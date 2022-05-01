@@ -36,7 +36,7 @@ resources:
     repository: ((nexus-docker.uri))/bougle/cervel
     username: ((nexus.username))
     password: ((nexus.password))
-    tag: dev
+    tag: latest
 
 #- name: client-version
 #  type: semver
