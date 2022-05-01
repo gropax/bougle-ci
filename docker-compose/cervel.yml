@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  catalog-advisor:
+  cervel:
     image: nexus.boug.re:18444/bougle/cervel:latest
     container_name: cervel
     restart: unless-stopped
