@@ -59,7 +59,7 @@ jobs:
     vars:
       source: "code"
       solution: "Cervel.sln"
-      framework: "5.0"
+      framework: "5.0-alpine"
 
 - name: build-server-image
   plan:
