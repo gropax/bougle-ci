@@ -13,5 +13,6 @@ run:
   args:
   - -exc
   - |
+    ln -s / /rootfs  # Fix tricky bug https://stackoverflow.com/q/71709759/19017361
     cd code
     dotnet test -c Release ((solution))
